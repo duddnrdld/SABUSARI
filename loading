@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>사브사리 · 오늘의 행운 준비 중</title>
+  <link rel="stylesheet" href="styles/style.css">
+  <meta http-equiv="refresh" content="5; url=result.html" />
+  <!-- 메타 리프레시로 5초 후 result.html 이동 (JS 타이머도 함께 적용) -->
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="chip">잠시만요</div>
+      <div class="gif-box" style="display:block">
+        <img id="fortuneGif" src="assets/fortune.gif" alt="사브사리 행운 GIF" />
+      </div>
+      <p class="subtitle" style="margin-top:10px">사브사리가 복을 담는 중... ✨</p>
+    </div>
+    <div class="footer">© Namusoo Design · Sabsari</div>
+  </div>
+
+  <script>
+    // JS 타이머(메타 리프레시가 막힌 환경 대비)
+    setTimeout(()=>{ window.location.href = 'result.html'; }, 5000);
+  </script>
+</body>
+</html>
