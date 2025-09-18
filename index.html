@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>사브사리 오늘의 행운메시지</title>
+  <style>
+    :root{
+      --bg:#fff9fd;            /* 아주 연한 핑크 베이스 */
+      --card:#ffffff;          /* 카드 배경 */
+      --ink:#333;              /* 본문 색 */
+      --accent:#ff92c2;        /* 딸기우유 포인트 */
+      --accent-2:#9ad8ff;     /* 파스텔 블루 */
+      --muted:#888;           
+      --radius:24px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; font-family: "Pretendard", system-ui, -apple-system, Segoe UI, Roboto, Apple SD Gothic Neo, Noto Sans KR, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 50% -10%, #ffe4f1 0%, var(--bg) 40%, var(--bg) 100%);
+      color:var(--ink);
+    }
+    .wrap{max-width:480px; margin:0 auto; padding:20px 16px 40px}
+    .card{
+      background:var(--card); border-radius:var(--radius);
+      box-shadow: 0 6px 20px rgba(255,146,194,.25);
+      padding:20px; text-align:center;
+    }
+    .title{
+      font-weight:800; font-size:22px; letter-spacing:-0.2px; margin:4px 0 8px;
+    }
+    .subtitle{color:#555; font-size:14px; margin:0 0 16px}
+    .sabsari{
+      width:180px; height:180px; object-fit:contain; display:block; margin:10px auto 6px;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,.08));
+      animation: float 3.2s ease-in-out infinite;
+    }
+    @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+
+    .btn{
+      width:100%; padding:14px 16px; border:none; border-radius:16px; font-weight:700; font-size:16px;
+      background:linear-gradient(90deg, var(--accent), #ffc1dd);
+      color:#fff; cursor:pointer; transition:.2s transform ease, .2s box-shadow ease;
+      box-shadow: 0 6px 12px rgba(255,146,194,.35);
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn[disabled]{opacity:.6; cursor:not-allowed;}
+
+    .gif-box{ display:none; margin-top:6px; }
+    .gif-box img{ width:100%; border-radius:16px; }
+
+    .result{ display:none; margin-top:16px; }
+    .fortune{
+      padding:18px; border-radius:16px; line-height:1.5; font-size:17px; font-weight:700;
+      background: conic-gradient(from 180deg at 50% 50%, #fff 0 30%, #fff7fb 30% 60%, #eef8ff 60% 100%);
+      border:1px dashed #ffd1e6;
+    }
+    .tip{ color:var(--muted); font-size:13px; margin-top:10px }
+
+    .footer{ text-align:center; color:#999; font-size:12px; margin-top:18px }
+    .chip{
+      display:inline-block; padding:6px 10px; border-radius:999px; background:#fff0f6; color:#c43c7a; font-weight:700; font-size:12px; margin-bottom:6px;
+      border:1px solid #ffd6e9;
+    }
+  </style>
+</head>
+<body>
+  <!--
+    ⚙️ 배포 메모
+    1) /assets/sabsari.png  : 사브사리 정지 이미지 (사용자 제공)
+    2) /assets/fortune.gif  : 5초 재생 GIF (사용자 제공)
+    3) 아래 FORTUNE_MESSAGES 배열에 100개의 행운문구를 넣으세요.
+       - 나중에 분리하고 싶다면 /assets/fortunes.js 로 옮기고 <script src="/assets/fortunes.js"></script> 로 불러오면 됩니다.
+    4) "하루 1개 제한"은 기기/브라우저 기준(로컬 저장소)입니다. 서버를 쓰면 사용자 계정/쿠키로 확장 가능.
+  -->
+
+  <div class="wrap">
+    <div class="card" id="stage-welcome">
+      <div class="chip">오늘의 행운</div>
+      <img id="sabsariImg" class="sabsari" src="/assets/sabsari.png" alt="사브사리" />
+      <h1 class="title">오늘의 행운메시지를 보여줄까?</h1>
+      <p class="subtitle">사브사리가 살포시 복을 건네줄 준비 중이에요. (하루 1번만!)</p>
+      <button id="startBtn" class="btn">부탁해!</button>
+      <div class="gif-box" id="gifBox">
+        <img id="fortuneGif" src="/assets/fortune.gif" alt="사브사리 행운 GIF" />
+      </div>
+      <div class="result" id="resultBox">
+        <div class="fortune" id="fortuneText">여기에 행운메시지가 보여요 ✨</div>
+        <div class="tip" id="nextTip">내일 또 받으러 와줘요 ♡</div>
+      </div>
+    </div>
+
+    <div class="footer">© Namusoo Design · Sabsari</div>
+  </div>
+
+  <script>
+    // =========================
+    // 1) 행운 메시지 저장 공간
+    // =========================
+    // 👉 여기 배열에 100개의 문구를 문자열로 넣으세요.
+    //    예시 20개만 채워두었습니다. (반드시 100개로 늘려 사용)
+    const FORTUNE_MESSAGES = [
+      "오늘의 너, 생각보다 더 빛나!",
+      "작은 시작이 큰 행운을 불러와요.",
+      "네가 한 친절이 돌아와 좋은 소식이 될 거야.",
+      "기다리던 연락이 곧 도착!",
+      "걱정의 80%는 일어나지 않아요. 가볍게 가자!",
+      "네 선택이 정답. 자신감 있게 Go!",
+      "의외의 곳에서 칭찬을 듣게 될 거예요.",
+      "오늘은 행운 포인트 +1 쌓이는 날!",
+      "우연처럼 보인 만남이 기회가 될 거야.",
+      "네가 좋아하는 음악이 좋은 흐름을 데려와요.",
+      "돈 대신 시간을 아끼면 돈이 따라와요.",
+      "좋은 소식, 달콤한 간식처럼 찾아와요.",
+      "오늘의 한 걸음이 내일의 점프가 된다!",
+      "마음에 든 아이디어, 지금 적어두기 ✍️",
+      "이모티콘처럼 반짝! 표정이 행운을 부른다.",
+      "네가 상상한 것보다 결과가 더 좋아질 거야.",
+      "정리정돈 10분 = 머릿속 여유 1시간.",
+      "행운은 준비된 사람에게 미소 짓는다 :) ",
+      "작은 감사 인사가 큰 복을 데려와요.",
+      "오늘의 수고가 곧 보상으로 돌아와요.",
+    ];
+
+    // =========================
+    // 2) 하루 1개 제한 로직
+    // =========================
+    const KEY_DATE = 'sabsari_fortune_date';
+    const KEY_TEXT = 'sabsari_fortune_text';
+
+    // 현지(일본/한국) 기준 날짜 키 만들기
+    function todayKey(){
+      try{
+        // 아시아/도쿄 기준 (사용자 요청: 일본 체류)
+        const fmt = new Intl.DateTimeFormat('ko-KR', { timeZone:'Asia/Tokyo', year:'numeric', month:'2-digit', day:'2-digit' });
+        const parts = fmt.formatToParts(new Date());
+        const y = parts.find(p=>p.type==='year').value;
+        const m = parts.find(p=>p.type==='month').value;
+        const d = parts.find(p=>p.type==='day').value;
+        return `${y}-${m}-${d}`; // 예) 2025-09-18
+      }catch(e){
+        // 브라우저가 Intl 미지원일 경우 로컬 기준으로 대체
+        const dt = new Date();
+        const y = dt.getFullYear();
+        const m = String(dt.getMonth()+1).padStart(2,'0');
+        const d = String(dt.getDate()).padStart(2,'0');
+        return `${y}-${m}-${d}`;
+      }
+    }
+
+    function getSavedFortune(){
+      const savedDate = localStorage.getItem(KEY_DATE);
+      const savedText = localStorage.getItem(KEY_TEXT);
+      const today = todayKey();
+      if(savedDate === today && savedText){ return savedText; }
+      return null;
+    }
+
+    function saveFortune(text){
+      localStorage.setItem(KEY_DATE, todayKey());
+      localStorage.setItem(KEY_TEXT, text);
+    }
+
+    // =========================
+    // 3) UI 핸들러
+    // =========================
+    const startBtn = document.getElementById('startBtn');
+    const gifBox = document.getElementById('gifBox');
+    const resultBox = document.getElementById('resultBox');
+    const fortuneText = document.getElementById('fortuneText');
+
+    // 앱 시작 시: 이미 오늘 뽑았다면 바로 결과 보여주기
+    window.addEventListener('DOMContentLoaded', () => {
+      const already = getSavedFortune();
+      if(already){
+        fortuneText.textContent = already;
+        resultBox.style.display = 'block';
+        startBtn.disabled = true;
+        document.getElementById('nextTip').textContent = '오늘의 행운은 이미 전달했어요 ♡ 내일 다시 만나요!';
+      }
+    });
+
+    startBtn.addEventListener('click', async () => {
+      // 중복 클릭 방지
+      startBtn.disabled = true;
+
+      // 혹시 이미 있으면 바로 결과
+      const saved = getSavedFortune();
+      if(saved){
+        fortuneText.textContent = saved;
+        resultBox.style.display = 'block';
+        return;
+      }
+
+      // 1) GIF 재생 5초 노출
+      gifBox.style.display = 'block';
+
+      await new Promise(r => setTimeout(r, 5000));
+
+      // 2) 랜덤 메시지 선택 (100개 채워 넣으면 0~99 범위)
+      const pick = FORTUNE_MESSAGES[Math.floor(Math.random() * FORTUNE_MESSAGES.length)];
+
+      // 3) 저장 + 결과 표시
+      saveFortune(pick);
+      fortuneText.textContent = pick;
+      resultBox.style.display = 'block';
+
+      // 4) GIF는 결과가 보일 때 자연스럽게 접기
+      gifBox.style.display = 'none';
+    });
+  </script>
+</body>
+</html>
