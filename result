@@ -19,7 +19,7 @@
       <div class="chip">오늘의 행운</div>
       <div class="result" style="display:block">
         <div class="fortune" id="fortuneText">행운을 불러오는 중...</div>
-        <div class="tip" id="nextTip">하루 1번만 받을 수 있어요 ♡</div>
+        <div class="tip" id="nextTip">사브사리가 전해준 오늘의 행운이에요 ✨ (매번 새로 보기)</div>
       </div>
 
       <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; justify-content:center">
@@ -37,51 +37,15 @@
 
   <script src="assets/fortunes.js"></script>
   <script>
-    // ===== 공통 키 & 날짜 함수 (Asia/Tokyo 기준) =====
-    const KEY_DATE = 'sabsari_fortune_date';
-    const KEY_TEXT = 'sabsari_fortune_text';
-    function todayKey(){
-      try{
-        const fmt = new Intl.DateTimeFormat('ko-KR', { timeZone:'Asia/Tokyo', year:'numeric', month:'2-digit', day:'2-digit' });
-        const parts = fmt.formatToParts(new Date());
-        const y = parts.find(p=>p.type==='year').value;
-        const m = parts.find(p=>p.type==='month').value;
-        const d = parts.find(p=>p.type==='day').value;
-        return `${y}-${m}-${d}`;
-      }catch(e){
-        const dt = new Date();
-        const y = dt.getFullYear();
-        const m = String(dt.getMonth()+1).padStart(2,'0');
-        const d = String(dt.getDate()).padStart(2,'0');
-        return `${y}-${m}-${d}`;
-      }
-    }
-    function getSavedFortune(){
-      const savedDate = localStorage.getItem(KEY_DATE);
-      const savedText = localStorage.getItem(KEY_TEXT);
-      const today = todayKey();
-      if(savedDate === today && savedText){ return savedText; }
-      return null;
-    }
-    function saveFortune(text){
-      localStorage.setItem(KEY_DATE, todayKey());
-      localStorage.setItem(KEY_TEXT, text);
-    }
-
-    // ===== 결과 렌더링 =====
+    // ===== 결과 렌더링 (매 접속 시 랜덤) =====
     const fortuneTextEl = document.getElementById('fortuneText');
     const nextTipEl = document.getElementById('nextTip');
 
     function renderFortune(){
-      let text = getSavedFortune();
-      if(!text){
-        const pick = FORTUNE_MESSAGES[Math.floor(Math.random() * FORTUNE_MESSAGES.length)];
-        saveFortune(pick);
-        text = pick;
-      }
-      fortuneTextEl.textContent = text;
-      nextTipEl.textContent = '오늘의 행운은 전달 완료! 내일 또 만나자 ♡';
-      return text;
+      const pick = FORTUNE_MESSAGES[Math.floor(Math.random() * FORTUNE_MESSAGES.length)];
+      fortuneTextEl.textContent = pick;
+      nextTipEl.textContent = '사브사리가 전해준 오늘의 행운이에요 ✨ (매번 새로 보기)';
+      return pick;
     }
 
     const currentFortune = renderFortune();
@@ -106,9 +70,10 @@
     document.getElementById('copyLink').addEventListener('click', async () => {
       try{
         await navigator.clipboard.writeText(location.href);
-        const old = document.getElementById('copyLink').textContent;
-        document.getElementById('copyLink').textContent = '복사 완료!';
-        setTimeout(()=>{ document.getElementById('copyLink').textContent = old; }, 1500);
+        const copyBtn = document.getElementById('copyLink');
+        const old = copyBtn.textContent;
+        copyBtn.textContent = '복사 완료!';
+        setTimeout(()=>{ copyBtn.textContent = old; }, 1500);
       }catch(e){
         prompt('클립보드 접근이 막혀 있어요. 아래 링크를 복사하세요:', location.href);
       }
