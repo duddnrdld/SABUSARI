@@ -3,81 +3,29 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>사브사리 · 오늘의 행운 결과</title>
+  <title>사브사리 오늘의 행운메시지</title>
   <link rel="stylesheet" href="styles/style.css">
-  <!-- 카카오 SDK (선택): 실제 사용 시 YOUR_APP_KEY 교체 필요 -->
-  <script src="https://developers.kakao.com/sdk/js/kakao.min.js"></script>
-  <script>
-    // Kakao SDK 초기화 (키가 없으면 공유 버튼에서 경고 처리)
-    const KAKAO_APP_KEY = 'YOUR_APP_KEY'; // TODO: 실제 키로 교체
-    try { if (Kakao && !Kakao.isInitialized()) Kakao.init(KAKAO_APP_KEY); } catch(e) {}
-  </script>
+  <style>
+    /* 추가: 모바일 대응 이미지 크기 */
+    .sabsari {
+      max-width: 80%;
+      height: auto;
+      display: block;
+      margin: 10px auto;
+    }
+  </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card">
+    <div class="card" id="stage-welcome">
       <div class="chip">오늘의 행운</div>
-      <div class="result" style="display:block">
-        <div class="fortune" id="fortuneText">행운을 불러오는 중...</div>
-        <div class="tip" id="nextTip">사브사리가 전해준 오늘의 행운이에요 ✨ (매번 새로 보기)</div>
-      </div>
-
-      <div style="display:flex; gap:10px; margin-top:14px; flex-wrap:wrap; justify-content:center">
-        <button class="btn" id="shareKakao" style="flex:1 1 180px">카카오톡 공유하기</button>
-        <button class="btn" id="copyLink" style="flex:1 1 160px; background:linear-gradient(90deg,#9ad8ff,#c6eaff)">링크 복사</button>
-      </div>
-
-      <div style="margin-top:12px">
-        <a class="tip" href="index.html">다시 시작하기</a>
-      </div>
+      <img id="sabsariImg" class="sabsari" src="assets/sabsari.png" alt="사브사리" />
+      <h1 class="title">오늘의 행운메시지를 보여줄까?</h1>
+      <p class="subtitle">사브사리가 살포시 복을 건네줄 준비 중이에요. (하루 1번만!)</p>
+      <!-- 버튼을 a 링크로 교체해서 Not Found 문제 해결 -->
+      <a href="loading.html" id="startBtn" class="btn" rel="noopener">부탁해!</a>
     </div>
-
     <div class="footer">© Namusoo Design · Sabsari</div>
   </div>
-
-  <script src="assets/fortunes.js"></script>
-  <script>
-    // ===== 결과 렌더링 (매 접속 시 랜덤) =====
-    const fortuneTextEl = document.getElementById('fortuneText');
-    const nextTipEl = document.getElementById('nextTip');
-
-    function renderFortune(){
-      const pick = FORTUNE_MESSAGES[Math.floor(Math.random() * FORTUNE_MESSAGES.length)];
-      fortuneTextEl.textContent = pick;
-      nextTipEl.textContent = '사브사리가 전해준 오늘의 행운이에요 ✨ (매번 새로 보기)';
-      return pick;
-    }
-
-    const currentFortune = renderFortune();
-
-    // ===== 공유하기: 카카오톡 / 링크 복사 =====
-    document.getElementById('shareKakao').addEventListener('click', () => {
-      try{
-        if(typeof Kakao === 'undefined' || !Kakao.isInitialized() || KAKAO_APP_KEY === 'YOUR_APP_KEY'){
-          alert('카카오 공유를 사용하려면 Kakao JavaScript 키를 설정해주세요.');
-          return;
-        }
-        Kakao.Share.sendDefault({
-          objectType: 'text',
-          text: `사브사리 오늘의 행운\n\n${currentFortune}`,
-          link: { mobileWebUrl: location.href, webUrl: location.href },
-        });
-      }catch(e){
-        alert('카카오 공유 중 오류가 발생했어요.');
-      }
-    });
-
-    document.getElementById('copyLink').addEventListener('click', async () => {
-      try{
-        await navigator.clipboard.writeText(location.href);
-        const copyBtn = document.getElementById('copyLink');
-        const old = copyBtn.textContent;
-        copyBtn.textContent = '복사 완료!';
-        setTimeout(()=>{ copyBtn.textContent = old; }, 1500);
-      }catch(e){
-        prompt('클립보드 접근이 막혀 있어요. 아래 링크를 복사하세요:', location.href);
-      }
-    });
-  </script>
 </body>
 </html>
