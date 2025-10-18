@@ -6,56 +6,65 @@
   <title>사브사리 · 오늘의 행운</title>
   <link rel="stylesheet" href="styles/style.css">
   <style>
-    :root{ --ink:#333; --radius:16px; }
+    :root{ --ink:#333; --radius:26px; }
     body{
-      font-family:"Pretendard",system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",Arial,sans-serif;
-      background: radial-gradient(1200px 600px at 50% -10%, #ffe4f1 0%, #fff9fd 40%, #fff9fd 100%);
-      color:var(--ink); margin:0;
+      margin:0; font-family:"Pretendard",system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",Arial,sans-serif;
+      background:
+        radial-gradient(1200px 600px at 30% -10%, #ffd6ea 0%, #fff6fb 45%, #fff6fb 100%),
+        radial-gradient(1000px 500px at 90% 10%, #e8f6ff 0%, transparent 55%);
+      color:var(--ink);
     }
-    .wrap{max-width:480px;margin:0 auto;padding:20px 16px 40px}
-    .card{background:#fff;border-radius:var(--radius);padding:24px;text-align:center;box-shadow:0 6px 20px rgba(255,146,194,.25)}
-    .chip{display:inline-block;padding:6px 10px;border-radius:999px;background:#fff0f6;color:#c43c7a;font-weight:700;font-size:12px;margin-bottom:6px;border:1px solid #ffd6e9}
+    .wrap{max-width:520px;margin:0 auto;padding:22px 16px 44px; position:relative;}
+    .sparkle{position:absolute; inset:-40px; pointer-events:none; background:
+      radial-gradient(6px 6px at 20% 30%, rgba(255,255,255,.85), transparent 60%),
+      radial-gradient(6px 6px at 80% 20%, rgba(255,255,255,.85), transparent 60%),
+      radial-gradient(6px 6px at 70% 80%, rgba(255,255,255,.85), transparent 60%);
+      animation:spark 2.6s linear infinite;
+    }
+    @keyframes spark{0%{opacity:.2}50%{opacity:.6}100%{opacity:.2}}
+    .card{background:#fff;border-radius:var(--radius);padding:26px;text-align:center;box-shadow:0 10px 30px rgba(255,127,180,.28)}
+    .chip{display:inline-block;padding:7px 12px;border-radius:999px;background:#fff0f6;color:#c43c7a;font-weight:800;font-size:12px;margin-bottom:10px;border:1px solid #ffd6e9}
     .fortune{
-      padding:18px;border-radius:16px;line-height:1.6;font-size:18px;font-weight:800;margin-top:10px;
+      padding:20px;border-radius:18px;line-height:1.65;font-size:19px;font-weight:900;margin-top:10px;
       background:conic-gradient(from 180deg at 50% 50%,#fff 0 30%,#fff7fb 30% 60%,#eef8ff 60% 100%);
-      border:1px dashed #ffd1e6;
+      border:1px dashed #ffd1e6; box-shadow:0 6px 12px rgba(255,127,180,.15);
     }
     .btn{
-      display:inline-block;width:100%;padding:14px 16px;border:none;border-radius:16px;font-weight:700;font-size:16px;text-align:center;text-decoration:none;
-      background:linear-gradient(90deg,#ff92c2,#ffc1dd); color:#fff; box-shadow:0 6px 12px rgba(255,146,194,.35); margin-top:14px;
+      display:inline-block;width:100%;padding:14px 16px;border:none;border-radius:18px;font-weight:800;font-size:16px;text-align:center;text-decoration:none;
+      background:linear-gradient(90deg,#ff7fb4,#ffc1dd); color:#fff; box-shadow:0 10px 18px rgba(255,127,180,.35); margin-top:16px;
     }
-    .footer{text-align:center;color:#999;font-size:12px;margin-top:18px}
+    .footer{ text-align:center; color:#a2a2a2; font-size:12px; margin-top:20px }
   </style>
 </head>
 <body>
   <div class="wrap">
+    <div class="sparkle"></div>
+
     <div class="card">
       <div class="chip">오늘의 행운</div>
       <div class="fortune" id="fortuneText">행운을 불러오는 중...</div>
 
-      <!-- 다시 뽑기: 로딩→5초→결과 -->
       <a href="./loading.html" class="btn">새로운 행운 메시지 뽑기</a>
 
       <div style="margin-top:12px">
         <a class="tip" href="./index.html">처음으로</a>
       </div>
     </div>
-    <div class="footer">© Namusoo Design · Sabsari</div>
+
+    <div class="footer">© Sabusari</div>
   </div>
 
   <script>
-    // 1) 외부 fortunes52.js 시도 로드(상대경로 + 캐시버스터)
+    // 외부 데이터 로드 + 폴백
     function loadFortunes() {
-      return new Promise((resolve, reject) => {
+      return new Promise((resolve) => {
         const s = document.createElement('script');
-        s.src = './assets/fortunes52.js?v=3';
+        s.src = './assets/fortunes52.js?v=2';  // 캐시 버스터
         s.onload = () => resolve(true);
-        s.onerror = () => reject(new Error('loadfail'));
+        s.onerror = () => resolve(false);
         document.head.appendChild(s);
       });
     }
-
-    // 2) 폴백용 52개(외부 로드 실패 시 사용)
     const FALLBACK_52 = [
       "오늘은 작은 결심이 큰 변화를 만든다.","기다리던 좋은 소식이 문을 두드린다.","네가 베푼 친절이 두 배로 돌아온다.",
       "우연처럼 온 기회가 필연이 된다.","마음의 여유가 행운을 끌어당긴다.","작은 감사가 큰 복이 된다.",
@@ -77,9 +86,8 @@
       "작은 선의가 큰 기적을 만든다."
     ];
 
-    // 3) 실행
     (async () => {
-      try { await loadFortunes(); } catch (e) { /* ignore */ }
+      await loadFortunes();
       const list = (Array.isArray(window.FORTUNE_52) && FORTUNE_52.length) ? FORTUNE_52 : FALLBACK_52;
       const pick = list[Math.floor(Math.random() * list.length)];
       document.getElementById('fortuneText').textContent = pick;
