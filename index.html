@@ -27,7 +27,7 @@
     .b2{top:40px; right:-18px; width:72px; height:72px; animation-duration:7.5s}
     @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
 
-    /* ✳️ 카드: 반투명 배경으로 변경 */
+    /* ✳️ 카드 반투명 */
     .card{
       background:rgba(255,255,255,0.5);
       border-radius:var(--radius);
@@ -38,8 +38,7 @@
     }
     .chip{display:inline-block; padding:7px 12px; border-radius:999px;
       background:#fff0f6; color:#c43c7a; font-weight:800; font-size:12px;
-      border:1px solid #ffd6e9; letter-spacing:.2px}
-    /* ✳️ 제목 크기 약간 축소 */
+      border:1px solid #ffd6e9;}
     .title{font-weight:900; font-size:20px; margin:12px 0 8px; line-height:1.3;}
 
     .sabsari{ width:clamp(200px,70vw,300px); height:auto; display:block;
@@ -56,43 +55,52 @@
 
     .btn{
       display:inline-block; width:100%; padding:14px 16px; border:none; border-radius:18px;
-      font-weight:800; font-size:16px; text-align:center; text-decoration:none; letter-spacing:.2px;
+      font-weight:800; font-size:16px; text-align:center;
       background:linear-gradient(90deg, var(--accent), #ffc1dd);
       color:#fff; box-shadow:0 10px 18px rgba(255,127,180,.35); transition:.15s transform ease;
     }
     .btn:active{transform:translateY(1px)}
     .footer{ text-align:center; color:#a2a2a2; font-size:12px; margin-top:20px; position:relative; z-index:4;}
 
-    /* 초고속 배경 스웜 */
-    .swarm{
+    /* 🌧️ 삽살개가 비처럼 천천히 내리는 효과 */
+    .rain{
       position:fixed; inset:0; z-index:1; pointer-events:none; overflow:hidden;
     }
-    .sprite{
+    .drop{
       position:absolute; will-change:transform, opacity;
-      width:56px; height:56px; opacity:.85;
-      filter:blur(0.6px) drop-shadow(0 2px 4px rgba(0,0,0,.12));
-      transform:translate(-50%, -50%) rotate(0deg);
+      width:56px; height:56px; opacity:.8;
+      filter:blur(0.5px) drop-shadow(0 2px 4px rgba(0,0,0,.12));
+      animation:fall linear infinite;
     }
-    @media (min-width:768px){
-      .sprite{ width:64px; height:64px; }
+    @keyframes fall {
+      0% {
+        transform: translateY(-100px) rotate(0deg);
+        opacity: 0;
+      }
+      10% { opacity: 1; }
+      90% { opacity: 1; transform: translateY(calc(100vh + 60px)) rotate(720deg); }
+      100% {
+        transform: translateY(calc(100vh + 60px)) rotate(1080deg);
+        opacity: 0;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="swarm" id="swarm"></div>
+  <!-- 🌧️ 삽살개 비 -->
+  <div class="rain" id="rain"></div>
 
   <div class="wrap">
     <span class="bubble b1"></span>
     <span class="bubble b2"></span>
 
     <div class="card" id="stage-welcome">
-      <!-- ✅ 이름 변경 -->
       <div class="chip">오늘의 행운메시지 보기</div>
 
       <img
         id="sabsariImg"
         class="sabsari"
-        src="./assets/sabsari_motion.gif?v=4"
+        src="./assets/sabsari_motion.gif?v=5"
         alt="움직이는 사브사리"
         onerror="this.onerror=null; this.src='./assets/sabsari.png?v=1';"
       />
@@ -108,71 +116,37 @@
   </div>
 
   <script>
-    /* 시간 표시 (초 포함) */
+    // ⏰ 시간 표시
     const nowEl = document.getElementById('nowText');
     function fmtNow(){
-      try{
-        return new Intl.DateTimeFormat('ko-KR', {
-          timeZone:'Asia/Tokyo',
-          month:'long', day:'2-digit',
-          hour:'2-digit', minute:'2-digit', second:'2-digit'
-        }).format(new Date()).replace(/\s/g,' ');
-      }catch(e){
-        const d = new Date();
-        return `${d.getMonth()+1}월 ${String(d.getDate()).padStart(2,'0')}일 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
-      }
+      const d = new Date();
+      return `${d.getMonth()+1}월 ${String(d.getDate()).padStart(2,'0')}일 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
     }
     function tick(){ nowEl.textContent = fmtNow(); }
     tick(); setInterval(tick, 1000);
 
-    /* 초고속 랜덤 비행 */
-    const SWARM_IMG = ['./assets/sab1.png','./assets/sab2.png','./assets/sab3.png','./assets/sab4.png'];
-    const COUNT_PER = 10;
-    const SPEED_MIN = 100, SPEED_MAX = 200;
-    const SPIN_MIN = 100, SPIN_MAX = 330;
-    const swarmRoot = document.getElementById('swarm');
+    // 🌧️ 삽살개 비 생성
+    const RAIN_IMG = ['./assets/sab1.png','./assets/sab2.png','./assets/sab3.png','./assets/sab4.png'];
+    const COUNT_PER = 10; // 각 이미지당 10개 = 총 40개
+    const rainRoot = document.getElementById('rain');
+
     function rand(min, max){ return Math.random() * (max - min) + min; }
-    function randomPointOutside(w, h){
-      const side = Math.floor(Math.random()*4);
-      const margin = 80;
-      switch(side){
-        case 0: return { x: rand(-margin, w+margin), y: -margin };
-        case 1: return { x: w+margin, y: rand(-margin, h+margin) };
-        case 2: return { x: rand(-margin, w+margin), y: h+margin };
-        default: return { x: -margin, y: rand(-margin, h+margin) };
-      }
+
+    function createDrop(src){
+      const el = document.createElement('img');
+      el.className = 'drop';
+      el.src = src;
+      el.style.left = `${rand(0, 100)}vw`;
+      el.style.animationDuration = `${rand(8, 16)}s`;
+      el.style.animationDelay = `${rand(0, 10)}s`;
+      el.style.transform = `rotate(${rand(0, 360)}deg)`;
+      el.style.opacity = rand(0.6, 0.9);
+      el.onload = () => rainRoot.appendChild(el);
     }
-    function fly(sprite){
-      const w = window.innerWidth, h = window.innerHeight;
-      const start = randomPointOutside(w, h);
-      const end   = randomPointOutside(w, h);
-      const dur   = rand(SPEED_MIN, SPEED_MAX);
-      const spin  = rand(SPIN_MIN, SPIN_MAX) * (Math.random()<0.5 ? -1 : 1);
-      const scale = rand(0.6, 1.0);
-      sprite.style.opacity = 0.9;
-      sprite.style.transform = `translate(${start.x}px, ${start.y}px) rotate(0deg) scale(${scale})`;
-      const anim = sprite.animate(
-        [
-          { transform: `translate(${start.x}px, ${start.y}px) rotate(0deg) scale(${scale})`, opacity: 0.05 },
-          { transform: `translate(${(start.x+end.x)/2}px, ${(start.y+end.y)/2}px) rotate(${spin/2}deg) scale(${scale})`, opacity: 0.3, offset: 0.5 },
-          { transform: `translate(${end.x}px, ${end.y}px) rotate(${spin}deg) scale(${scale})`, opacity: 0.05 }
-        ],
-        { duration: dur, easing: 'linear', fill: 'forwards' }
-      );
-      anim.onfinish = () => fly(sprite);
-    }
-    function createSprite(src){
-      const img = new Image();
-      img.className = 'sprite';
-      img.src = src;
-      img.alt = 'sabsari bg';
-      img.onload = () => fly(img);
-      img.onerror = () => { img.remove(); };
-      swarmRoot.appendChild(img);
-    }
+
     (function spawn(){
-      SWARM_IMG.forEach(src => {
-        for(let i=0;i<COUNT_PER;i++) createSprite(src);
+      RAIN_IMG.forEach(src => {
+        for(let i=0;i<COUNT_PER;i++) createDrop(src);
       });
     })();
   </script>
