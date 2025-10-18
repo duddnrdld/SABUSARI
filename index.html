@@ -27,14 +27,17 @@
     .b2{top:40px; right:-18px; width:72px; height:72px; animation-duration:7.5s}
     @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
 
+    /* ✅ 카드 배경만 투명도 적용 */
     .card{
-      background:var(--card);
+      background: rgba(255,255,255,0.8);  /* ← 투명 흰색 */
       border-radius:var(--radius);
       padding:22px;
       text-align:center;
       box-shadow:0 10px 30px rgba(255,127,180,.28);
       position:relative;
+      backdrop-filter: blur(4px); /* 살짝 블러로 뒷배경 부드럽게 */
     }
+
     .chip{display:inline-block; padding:7px 12px; border-radius:999px;
       background:#fff0f6; color:#c43c7a; font-weight:800; font-size:12px;
       border:1px solid #ffd6e9; letter-spacing:.2px}
@@ -60,10 +63,8 @@
     .btn:active{transform:translateY(1px)}
     .footer{ text-align:center; color:#a2a2a2; font-size:12px; margin-top:20px; position:relative; z-index:4;}
 
-    /* ✅ 삽살개 비 효과 */
-    .rain{
-      position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:1;
-    }
+    /* 삽살개 비 효과 (이전 그대로 유지) */
+    .rain{ position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:1; }
     .drop{
       position:absolute; width:60px; height:60px; opacity:0.85;
       filter:blur(0.5px) drop-shadow(0 3px 6px rgba(0,0,0,.15));
@@ -74,31 +75,15 @@
     }
 
     @keyframes fall {
-      0% {
-        transform: translate(var(--x), -80px) rotate(0deg);
-        opacity: 0.1;
-      }
-      25% {
-        transform: translate(calc(var(--x) + 30px), 25vh) rotate(180deg);
-        opacity: 0.5;
-      }
-      50% {
-        transform: translate(calc(var(--x) - 20px), 50vh) rotate(360deg);
-        opacity: 0.8;
-      }
-      75% {
-        transform: translate(calc(var(--x) + 40px), 75vh) rotate(540deg);
-        opacity: 0.5;
-      }
-      100% {
-        transform: translate(var(--x), 110vh) rotate(720deg);
-        opacity: 0;
-      }
+      0% { transform: translate(var(--x), -80px) rotate(0deg); opacity: 0.1; }
+      25% { transform: translate(calc(var(--x) + 30px), 25vh) rotate(180deg); opacity: 0.5; }
+      50% { transform: translate(calc(var(--x) - 20px), 50vh) rotate(360deg); opacity: 0.8; }
+      75% { transform: translate(calc(var(--x) + 40px), 75vh) rotate(540deg); opacity: 0.5; }
+      100% { transform: translate(var(--x), 110vh) rotate(720deg); opacity: 0; }
     }
   </style>
 </head>
 <body>
-  <!-- ✅ 삽살개 비 -->
   <div class="rain" id="rain"></div>
 
   <div class="wrap">
@@ -108,13 +93,10 @@
     <div class="card" id="stage-welcome">
       <div class="chip">오늘의 행운</div>
 
-      <img
-        id="sabsariImg"
-        class="sabsari"
-        src="./assets/sabsari_motion.gif?v=4"
-        alt="움직이는 사브사리"
-        onerror="this.onerror=null; this.src='./assets/sabsari.png?v=1';"
-      />
+      <img id="sabsariImg" class="sabsari"
+           src="./assets/sabsari_motion.gif?v=4"
+           alt="움직이는 사브사리"
+           onerror="this.onerror=null; this.src='./assets/sabsari.png?v=1';" />
 
       <div class="now-badge"><span class="dot"></span><span id="nowText">--:--:--</span></div>
 
@@ -127,41 +109,26 @@
   </div>
 
   <script>
-    // 시간 표시 (초 포함)
-    const el = document.getElementById('nowText');
+    const el=document.getElementById('nowText');
     function fmt(){
-      try{
-        return new Intl.DateTimeFormat('ko-KR', {
-          timeZone:'Asia/Tokyo',
-          month:'long', day:'2-digit',
-          hour:'2-digit', minute:'2-digit', second:'2-digit'
-        }).format(new Date()).replace(/\s/g,' ');
-      }catch(e){
-        const d=new Date();
-        return `${d.getMonth()+1}월 ${String(d.getDate()).padStart(2,'0')}일 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
-      }
+      const d=new Date();
+      return `${d.getMonth()+1}월 ${String(d.getDate()).padStart(2,'0')}일 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
     }
-    function tick(){ el.textContent=fmt(); }
-    tick(); setInterval(tick,1000);
+    setInterval(()=>{el.textContent=fmt();},1000); el.textContent=fmt();
 
-    // 삽살개 비 효과
-    const rain = document.getElementById('rain');
-    const imgs = ['./assets/sab1.png','./assets/sab2.png','./assets/sab3.png','./assets/sab4.png'];
-    const per = 10; // 각 이미지 10개씩
-    const total = per * imgs.length;
-
-    for (let i=0; i<total; i++){
-      const d = document.createElement('img');
-      d.src = imgs[i % imgs.length];
-      d.className = 'drop';
-      const dur = (Math.random()*3 + 3).toFixed(1) + 's'; // 3~6초 사이
-      const delay = (Math.random()*3).toFixed(1) + 's';
-      const x = Math.random()*100 + 'vw';
-      d.style.setProperty('--dur', dur);
-      d.style.setProperty('--delay', delay);
-      d.style.setProperty('--x', x);
-      d.style.animationDuration = dur;
-      d.style.animationDelay = delay;
+    const rain=document.getElementById('rain');
+    const imgs=['./assets/sab1.png','./assets/sab2.png','./assets/sab3.png','./assets/sab4.png'];
+    const per=10;
+    for(let i=0;i<per*imgs.length;i++){
+      const d=document.createElement('img');
+      d.src=imgs[i%imgs.length];
+      d.className='drop';
+      const dur=(Math.random()*3+3).toFixed(1)+'s';
+      const delay=(Math.random()*3).toFixed(1)+'s';
+      const x=Math.random()*100+'vw';
+      d.style.setProperty('--dur',dur);
+      d.style.setProperty('--delay',delay);
+      d.style.setProperty('--x',x);
       rain.appendChild(d);
     }
   </script>
