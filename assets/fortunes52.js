@@ -1,4 +1,4 @@
-// 52종 행운 메시지 + 셔플
+// 52종 행운 메시지
 const FORTUNE_52 = [
   "오늘은 작은 결심이 큰 변화를 만든다.",
   "기다리던 좋은 소식이 문을 두드린다.",
@@ -54,6 +54,7 @@ const FORTUNE_52 = [
   "작은 선의가 큰 기적을 만든다."
 ];
 
+// (선택) 셔플 함수가 필요하면 사용
 function shuffleFortunes52(arr){
   for(let i = arr.length - 1; i > 0; i--){
     const j = Math.floor(Math.random() * (i + 1));
