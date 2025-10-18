@@ -4,41 +4,27 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>사브사리 오늘의 행운메시지</title>
-  <!-- 외부 CSS가 있어도 아래 인라인이 우선 적용됨 -->
   <link rel="stylesheet" href="styles/style.css">
   <style>
-    :root{
-      --bg:#fff9fd; --card:#ffffff; --ink:#333;
-      --accent:#ff92c2; --muted:#888; --radius:24px;
-    }
+    :root{ --bg:#fff9fd; --card:#fff; --ink:#333; --accent:#ff92c2; --radius:24px; }
     *{box-sizing:border-box}
     body{
       margin:0; font-family:"Pretendard",system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",Arial,sans-serif;
       background: radial-gradient(1200px 600px at 50% -10%, #ffe4f1 0%, var(--bg) 40%, var(--bg) 100%);
       color:var(--ink);
     }
-    .wrap{max-width:480px; margin:0 auto; padding:20px 16px 40px}
-    .card{background:var(--card); border-radius:var(--radius); padding:20px; text-align:center;
-      box-shadow:0 6px 20px rgba(255,146,194,.25);}
-    .chip{display:inline-block; padding:6px 10px; border-radius:999px; background:#fff0f6; color:#c43c7a;
-      font-weight:700; font-size:12px; margin-bottom:6px; border:1px solid #ffd6e9;}
-    .title{font-weight:800; font-size:22px; margin:10px 0 8px}
-    .subtitle{color:#555; font-size:14px; margin:0 0 16px}
-    /* ✅ 모바일 강제 축소 */
-    .sabsari{
-      width: clamp(180px, 70vw, 260px); height:auto; display:block; margin:10px auto 16px;
-      filter: drop-shadow(0 4px 10px rgba(0,0,0,.08));
-      animation: float 3.2s ease-in-out infinite;
-    }
-    @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+    .wrap{max-width:480px;margin:0 auto;padding:20px 16px 40px}
+    .card{background:var(--card);border-radius:var(--radius);padding:20px;text-align:center;box-shadow:0 6px 20px rgba(255,146,194,.25)}
+    .chip{display:inline-block;padding:6px 10px;border-radius:999px;background:#fff0f6;color:#c43c7a;font-weight:700;font-size:12px;margin-bottom:6px;border:1px solid #ffd6e9}
+    .title{font-weight:800;font-size:22px;margin:10px 0 8px}
+    .subtitle{color:#555;font-size:14px;margin:0 0 16px}
+    /* 📱 PNG 강제 축소 */
+    .sabsari{ width:clamp(180px,70vw,260px); height:auto; display:block; margin:10px auto 16px; filter:drop-shadow(0 4px 10px rgba(0,0,0,.08)) }
     .btn{
-      display:inline-block; width:100%; padding:14px 16px; border:none; border-radius:16px;
-      font-weight:700; font-size:16px; text-align:center; text-decoration:none;
-      background:linear-gradient(90deg, var(--accent), #ffc1dd); color:#fff; cursor:pointer;
-      transition:.2s transform ease,.2s box-shadow ease; box-shadow:0 6px 12px rgba(255,146,194,.35);
+      display:inline-block;width:100%;padding:14px 16px;border:none;border-radius:16px;font-weight:700;font-size:16px;text-align:center;text-decoration:none;
+      background:linear-gradient(90deg, var(--accent), #ffc1dd); color:#fff; box-shadow:0 6px 12px rgba(255,146,194,.35)
     }
-    .btn:active{transform:translateY(1px)}
-    .footer{text-align:center; color:#999; font-size:12px; margin-top:18px}
+    .footer{text-align:center;color:#999;font-size:12px;margin-top:18px}
   </style>
 </head>
 <body>
@@ -47,8 +33,7 @@
       <div class="chip">오늘의 행운</div>
       <img id="sabsariImg" class="sabsari" src="assets/sabsari.png" alt="사브사리" />
       <h1 class="title">오늘의 행운메시지를 보여줄까?</h1>
-      <p class="subtitle">사브사리가 살포시 복을 건네줄 준비 중이에요. (매번 새로 볼 수 있어요!)</p>
-      <!-- ✅ 404 방지: 상대경로로 이동 -->
+      <p class="subtitle">사브사리가 살포시 복을 건네줄 준비 중이에요.</p>
       <a href="./loading.html" class="btn" rel="noopener">부탁해!</a>
     </div>
     <div class="footer">© Namusoo Design · Sabsari</div>
