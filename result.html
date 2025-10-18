@@ -3,29 +3,61 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>사브사리 오늘의 행운메시지</title>
+  <title>사브사리 · 오늘의 행운 52가지</title>
   <link rel="stylesheet" href="styles/style.css">
   <style>
-    /* 추가: 모바일 대응 이미지 크기 */
-    .sabsari {
-      max-width: 80%;
-      height: auto;
-      display: block;
-      margin: 10px auto;
+    :root{ --ink:#333; --radius:16px; }
+    body{
+      font-family:"Pretendard",system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",Arial,sans-serif;
+      background: radial-gradient(1200px 600px at 50% -10%, #ffe4f1 0%, #fff9fd 40%, #fff9fd 100%);
+      color:var(--ink);
+      margin:0;
     }
+    .wrap{max-width:480px;margin:0 auto;padding:20px 16px 40px}
+    .card{background:#fff;border-radius:var(--radius);padding:20px;box-shadow:0 6px 20px rgba(255,146,194,.25)}
+    .chip{display:inline-block;padding:6px 10px;border-radius:999px;background:#fff0f6;color:#c43c7a;font-weight:700;font-size:12px;margin-bottom:6px;border:1px solid #ffd6e9}
+    .title{font-weight:800;font-size:20px;margin:6px 0 12px;text-align:center}
+    .grid{display:grid;grid-template-columns:1fr;gap:10px}
+    @media(min-width:480px){.grid{grid-template-columns:1fr 1fr}}
+    .fortune-card{
+      padding:14px;border-radius:var(--radius);line-height:1.5;font-weight:700;
+      background:conic-gradient(from 180deg at 50% 50%,#fff 0 30%,#fff7fb 30% 60%,#eef8ff 60% 100%);
+      border:1px dashed #ffd1e6;color:var(--ink);
+    }
+    .num{
+      display:inline-block;min-width:28px;padding:4px 8px;border-radius:999px;font-size:12px;font-weight:800;
+      background:#fff0f6;border:1px solid #ffd6e9;margin-right:8px;color:#c43c7a;text-align:center;
+    }
+    .footer{text-align:center;color:#999;font-size:12px;margin-top:18px}
   </style>
+  <!-- 52개 메시지 불러오기 -->
+  <script src="assets/fortunes52.js"></script>
 </head>
 <body>
   <div class="wrap">
-    <div class="card" id="stage-welcome">
+    <div class="card">
       <div class="chip">오늘의 행운</div>
-      <img id="sabsariImg" class="sabsari" src="assets/sabsari.png" alt="사브사리" />
-      <h1 class="title">오늘의 행운메시지를 보여줄까?</h1>
-      <p class="subtitle">사브사리가 살포시 복을 건네줄 준비 중이에요. (하루 1번만!)</p>
-      <!-- 버튼을 a 링크로 교체해서 Not Found 문제 해결 -->
-      <a href="loading.html" id="startBtn" class="btn" rel="noopener">부탁해!</a>
+      <h2 class="title">사브사리가 전하는 52개의 행운 메시지 ✨</h2>
+      <div id="list" class="grid"></div>
+      <div style="margin-top:12px;text-align:center">
+        <a class="tip" href="./index.html">처음으로 돌아가기</a>
+      </div>
     </div>
     <div class="footer">© Namusoo Design · Sabsari</div>
   </div>
+
+  <script>
+    // fortunes52.js에 정의된 배열과 셔플 함수 사용
+    const root = document.getElementById('list');
+    const data = shuffleFortunes52([...FORTUNE_52]); // 배열 복사 후 셔플
+
+    // 카드 요소 생성
+    data.forEach((txt, idx) => {
+      const div = document.createElement('div');
+      div.className = 'fortune-card';
+      div.innerHTML = `<span class="num">${String(idx+1).padStart(2,'0')}</span>${txt}`;
+      root.appendChild(div);
+    });
+  </script>
 </body>
 </html>
