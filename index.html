@@ -17,10 +17,9 @@
         radial-gradient(1200px 600px at 30% -10%, #ffd6ea 0%, #fff6fb 45%, #fff6fb 100%),
         radial-gradient(1000px 500px at 90% 10%, #e8f6ff 0%, transparent 50%);
       color:var(--ink);
-      overflow:hidden; /* 배경 스프라이트가 화면 밖을 지나가도 자연스럽게 */
+      overflow:hidden;
     }
 
-    /* 메인 래퍼/카드 */
     .wrap{max-width:520px;margin:0 auto;padding:22px 16px 44px; position:relative; z-index:3;}
     .bubble{position:absolute; width:90px; height:90px; border-radius:50%;
       background:linear-gradient(135deg,#ffe3f1,#e8f6ff); filter:blur(1px); opacity:.6; animation:float 6s ease-in-out infinite}
@@ -28,8 +27,9 @@
     .b2{top:40px; right:-18px; width:72px; height:72px; animation-duration:7.5s}
     @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
 
+    /* ✳️ 카드: 반투명 배경으로 변경 */
     .card{
-      background:var(--card);
+      background:rgba(255,255,255,0.5);
       border-radius:var(--radius);
       padding:22px;
       text-align:center;
@@ -39,14 +39,13 @@
     .chip{display:inline-block; padding:7px 12px; border-radius:999px;
       background:#fff0f6; color:#c43c7a; font-weight:800; font-size:12px;
       border:1px solid #ffd6e9; letter-spacing:.2px}
-    .title{font-weight:900; font-size:24px; margin:12px 0 8px}
+    /* ✳️ 제목 크기 약간 축소 */
+    .title{font-weight:900; font-size:20px; margin:12px 0 8px; line-height:1.3;}
 
-    /* 메인 GIF/PNG */
     .sabsari{ width:clamp(200px,70vw,300px); height:auto; display:block;
       margin:8px auto 14px; filter:drop-shadow(0 6px 14px rgba(0,0,0,.08));
       animation:float 3.2s ease-in-out infinite }
 
-    /* 날짜/시간 배지 (초 포함) */
     .now-badge{
       display:inline-flex; align-items:center; gap:8px;
       background:linear-gradient(90deg,#fff7fb,#eef8ff);
@@ -64,7 +63,7 @@
     .btn:active{transform:translateY(1px)}
     .footer{ text-align:center; color:#a2a2a2; font-size:12px; margin-top:20px; position:relative; z-index:4;}
 
-    /* ✅ 초고속 배경 스웜 (sab1~sab4 각각 10개씩, 총 40개) */
+    /* 초고속 배경 스웜 */
     .swarm{
       position:fixed; inset:0; z-index:1; pointer-events:none; overflow:hidden;
     }
@@ -74,14 +73,12 @@
       filter:blur(0.6px) drop-shadow(0 2px 4px rgba(0,0,0,.12));
       transform:translate(-50%, -50%) rotate(0deg);
     }
-    /* 고해상도일 때 살짝 줄이기 */
     @media (min-width:768px){
       .sprite{ width:64px; height:64px; }
     }
   </style>
 </head>
 <body>
-  <!-- ✅ 배경 스프라이트 컨테이너 -->
   <div class="swarm" id="swarm"></div>
 
   <div class="wrap">
@@ -89,13 +86,13 @@
     <span class="bubble b2"></span>
 
     <div class="card" id="stage-welcome">
-      <div class="chip">오늘의 행운</div>
+      <!-- ✅ 이름 변경 -->
+      <div class="chip">오늘의 행운메시지 보기</div>
 
-      <!-- 메인 이미지: GIF 실패 시 PNG 폴백 -->
       <img
         id="sabsariImg"
         class="sabsari"
-        src="./assets/sabsari_motion.gif?v=3"
+        src="./assets/sabsari_motion.gif?v=4"
         alt="움직이는 사브사리"
         onerror="this.onerror=null; this.src='./assets/sabsari.png?v=1';"
       />
@@ -111,7 +108,7 @@
   </div>
 
   <script>
-    /* === 시간 표시 (초 포함, Asia/Tokyo) === */
+    /* 시간 표시 (초 포함) */
     const nowEl = document.getElementById('nowText');
     function fmtNow(){
       try{
@@ -128,22 +125,16 @@
     function tick(){ nowEl.textContent = fmtNow(); }
     tick(); setInterval(tick, 1000);
 
-    /* === 초고속 랜덤 비행 + 스핀 스웜 === */
+    /* 초고속 랜덤 비행 */
     const SWARM_IMG = ['./assets/sab1.png','./assets/sab2.png','./assets/sab3.png','./assets/sab4.png'];
-    const COUNT_PER = 10;               // 각 파일당 10개씩
-    const SPEED_MIN = 1500;              // 0.7초
-    const SPEED_MAX = 3000;             // 1.5초
-    const SPIN_MIN = 360;               // 회전 각도 최소
-    const SPIN_MAX = 3600;              // 회전 각도 최대
+    const COUNT_PER = 10;
+    const SPEED_MIN = 700, SPEED_MAX = 1500;
+    const SPIN_MIN = 360, SPIN_MAX = 1080;
     const swarmRoot = document.getElementById('swarm');
-
     function rand(min, max){ return Math.random() * (max - min) + min; }
-    function pick(arr){ return arr[(Math.random() * arr.length) | 0]; }
-
-    // 화면 밖에서 안으로/안에서 밖으로 무작위 선형 비행
     function randomPointOutside(w, h){
-      const side = Math.floor(Math.random()*4); // 0:top,1:right,2:bottom,3:left
-      const margin = 80; // 화면 밖 출발/도착 여유
+      const side = Math.floor(Math.random()*4);
+      const margin = 80;
       switch(side){
         case 0: return { x: rand(-margin, w+margin), y: -margin };
         case 1: return { x: w+margin, y: rand(-margin, h+margin) };
@@ -151,29 +142,25 @@
         default: return { x: -margin, y: rand(-margin, h+margin) };
       }
     }
-
     function fly(sprite){
       const w = window.innerWidth, h = window.innerHeight;
       const start = randomPointOutside(w, h);
       const end   = randomPointOutside(w, h);
       const dur   = rand(SPEED_MIN, SPEED_MAX);
       const spin  = rand(SPIN_MIN, SPIN_MAX) * (Math.random()<0.5 ? -1 : 1);
-      const scale = rand(0.6, 1.0); // 크기 약간 랜덤
-
+      const scale = rand(0.6, 1.0);
       sprite.style.opacity = 0.9;
       sprite.style.transform = `translate(${start.x}px, ${start.y}px) rotate(0deg) scale(${scale})`;
-
       const anim = sprite.animate(
         [
-          { transform: `translate(${start.x}px, ${start.y}px) rotate(0deg) scale(${scale})`, opacity: 0.08 },
-          { transform: `translate(${(start.x+end.x)/2}px, ${(start.y+end.y)/2}px) rotate(${spin/2}deg) scale(${scale})`, opacity: 0.35, offset: 0.5 },
-          { transform: `translate(${end.x}px, ${end.y}px) rotate(${spin}deg) scale(${scale})`, opacity: 0.08 }
+          { transform: `translate(${start.x}px, ${start.y}px) rotate(0deg) scale(${scale})`, opacity: 0.05 },
+          { transform: `translate(${(start.x+end.x)/2}px, ${(start.y+end.y)/2}px) rotate(${spin/2}deg) scale(${scale})`, opacity: 0.3, offset: 0.5 },
+          { transform: `translate(${end.x}px, ${end.y}px) rotate(${spin}deg) scale(${scale})`, opacity: 0.05 }
         ],
         { duration: dur, easing: 'linear', fill: 'forwards' }
       );
-      anim.onfinish = () => fly(sprite); // 무한 반복
+      anim.onfinish = () => fly(sprite);
     }
-
     function createSprite(src){
       const img = new Image();
       img.className = 'sprite';
@@ -182,24 +169,12 @@
       img.onload = () => fly(img);
       img.onerror = () => { img.remove(); };
       swarmRoot.appendChild(img);
-      return img;
     }
-
-    // 스프라이트 생성 (총 40개)
     (function spawn(){
       SWARM_IMG.forEach(src => {
         for(let i=0;i<COUNT_PER;i++) createSprite(src);
       });
     })();
-
-    // 리사이즈시 경로 갱신을 위해 잠깐 재비행
-    let resizeTimer=null;
-    window.addEventListener('resize', () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        document.querySelectorAll('.sprite').forEach(el => fly(el));
-      }, 150);
-    });
   </script>
 </body>
 </html>
