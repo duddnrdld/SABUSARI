@@ -1,47 +1,63 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-  <title>사브사리 · 오늘의 행운 결과</title>
-  <link rel="stylesheet" href="styles/style.css">
-  <style>
-    :root{ --ink:#333; --radius:16px; }
-    .grid{ display:grid; grid-template-columns:1fr; gap:10px; }
-    @media (min-width:480px){ .grid{ grid-template-columns:1fr 1fr; } }
-    .fortune-card{
-      padding:14px; border-radius:var(--radius); line-height:1.5; font-weight:700;
-      background: conic-gradient(from 180deg at 50% 50%, #fff 0 30%, #fff7fb 30% 60%, #eef8ff 60% 100%);
-      border:1px dashed #ffd1e6; color:var(--ink);
-    }
-    .num{ display:inline-block; min-width:28px; padding:4px 8px; border-radius:999px; font-size:12px; font-weight:800; background:#fff0f6; border:1px solid #ffd6e9; margin-right:8px; color:#c43c7a; text-align:center }
-    .title{ font-weight:800; font-size:20px; margin:6px 0 12px; text-align:center }
-  </style>
-  <script src="assets/fortunes52.js"></script>
-</head>
-<body>
-  <div class="wrap">
-    <div class="card">
-      <div class="chip">오늘의 행운</div>
-      <h2 class="title">사브사리가 전하는 52개의 행운메시지 ✨</h2>
-      <div id="list" class="grid"></div>
-      <div style="margin-top:12px; text-align:center">
-        <a class="tip" href="./index.html">처음으로</a>
-      </div>
-    </div>
-    <div class="footer">© Namusoo Design · Sabsari</div>
-  </div>
+// 52종 행운 메시지 + 셔플
+const FORTUNE_52 = [
+  "오늘은 작은 결심이 큰 변화를 만든다.",
+  "기다리던 좋은 소식이 문을 두드린다.",
+  "네가 베푼 친절이 두 배로 돌아온다.",
+  "우연처럼 온 기회가 필연이 된다.",
+  "마음의 여유가 행운을 끌어당긴다.",
+  "작은 감사가 큰 복이 된다.",
+  "한 걸음 더, 거기에 답이 있다.",
+  "네가 찾는 답은 이미 네 안에 있다.",
+  "웃으면 복이 따라온다. 오늘 세 번 웃기!",
+  "좋은 인연이 오늘 너를 찾는다.",
+  "노력의 씨앗이 싹트는 날.",
+  "좋은 선택이 좋은 결과를 부른다.",
+  "마음껏 상상해도 좋아, 현실이 따라온다.",
+  "불필요한 걱정은 가볍게 정리하자.",
+  "뜻밖의 칭찬이 자신감을 불어넣는다.",
+  "작은 선물이 깜짝 기쁨이 된다.",
+  "내가 좋아하는 것을 하자, 운이 붙는다.",
+  "정성스럽게 한 일이 빛을 본다.",
+  "행복은 가까운 곳에 있다.",
+  "오늘의 선택, 내일의 행운.",
+  "기분 좋은 우연을 맞이할 준비를 하자.",
+  "정리정돈 10분, 마음 여유 1시간.",
+  "딱 한 통의 연락이 흐름을 바꾼다.",
+  "오늘은 네 편이 많은 날.",
+  "걱정의 80%는 일어나지 않는다.",
+  "작은 용기가 문을 연다.",
+  "오해는 대화로, 대화는 행운으로.",
+  "하늘도 네 편인 듯 맑다.",
+  "오늘의 나를 칭찬하자. 운이 올라간다.",
+  "좋은 습관이 좋은 기회를 부른다.",
+  "네 매력이 빛나는 순간이 온다.",
+  "기회는 준비된 사람에게 미소 짓는다.",
+  "마시멜로 같은 달콤한 소식!",
+  "오늘의 만남이 새로운 시작이 된다.",
+  "하루 한 번의 스트레칭이 아이디어를 부른다.",
+  "무심코 한 말이 누군가를 살린다.",
+  "적절한 타이밍, 오늘 너의 것.",
+  "운은 나누면 커진다.",
+  "마음에 든 아이디어, 바로 적어두자.",
+  "오늘은 내 편이 바람처럼 불어온다.",
+  "네가 원하는 곳으로 길이 이어진다.",
+  "작은 성취가 큰 자신감을 만든다.",
+  "고마움을 표현하면 기쁨이 배가된다.",
+  "의외의 곳에서 도움을 얻는다.",
+  "오늘은 원하는 답을 얻게 된다.",
+  "쉬어가는 용기가 흐름을 좋게 만든다.",
+  "마음의 창을 활짝 열자, 기회가 들어온다.",
+  "네가 찾는 사람도 너를 찾고 있다.",
+  "간절함이 방향을 정해준다.",
+  "오늘은 행운 포인트 +1 쌓이는 날!",
+  "빛나는 표정이 좋은 일을 끌어온다.",
+  "작은 선의가 큰 기적을 만든다."
+];
 
-  <script>
-    // 52개 메시지를 완전 랜덤 셔플 후 전부 렌더링
-    const root = document.getElementById('list');
-    const data = shuffleFortunes52([...FORTUNE_52]);
-
-    function el(html){ const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstChild; }
-
-    data.forEach((txt, idx) => {
-      root.appendChild(el(`<div class="fortune-card"><span class="num">${String(idx+1).padStart(2,'0')}</span>${txt}</div>`));
-    });
-  </script>
-</body>
-</html>
+function shuffleFortunes52(arr){
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
