@@ -29,6 +29,12 @@
       background:conic-gradient(from 180deg at 50% 50%,#fff 0 30%,#fff7fb 30% 60%,#eef8ff 60% 100%);
       border:1px dashed #ffd1e6; box-shadow:0 6px 12px rgba(255,127,180,.15);
     }
+    .gif-box img{
+      width:100%; max-width:320px; display:block; margin:0 auto 12px;
+      border-radius:16px; box-shadow:0 8px 16px rgba(0,0,0,.06);
+      animation:float 3s ease-in-out infinite;
+    }
+    @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-6px)}100%{transform:translateY(0)}}
     .btn{
       display:inline-block;width:100%;padding:14px 16px;border:none;border-radius:18px;font-weight:800;font-size:16px;text-align:center;text-decoration:none;
       background:linear-gradient(90deg,#ff7fb4,#ffc1dd); color:#fff; box-shadow:0 10px 18px rgba(255,127,180,.35); margin-top:16px;
@@ -42,6 +48,13 @@
 
     <div class="card">
       <div class="chip">오늘의 행운</div>
+
+      <!-- ✅ 새로 추가된 GIF -->
+      <div class="gif-box">
+        <img src="./assets/result_motion.gif" alt="행운을 전하는 사브사리 GIF"
+             onerror="this.style.display='none';" />
+      </div>
+
       <div class="fortune" id="fortuneText">행운을 불러오는 중...</div>
 
       <a href="./loading.html" class="btn">새로운 행운 메시지 뽑기</a>
@@ -55,16 +68,16 @@
   </div>
 
   <script>
-    // 외부 데이터 로드 + 폴백
     function loadFortunes() {
       return new Promise((resolve) => {
         const s = document.createElement('script');
-        s.src = './assets/fortunes52.js?v=2';  // 캐시 버스터
+        s.src = './assets/fortunes52.js?v=3';
         s.onload = () => resolve(true);
         s.onerror = () => resolve(false);
         document.head.appendChild(s);
       });
     }
+
     const FALLBACK_52 = [
       "오늘은 작은 결심이 큰 변화를 만든다.","기다리던 좋은 소식이 문을 두드린다.","네가 베푼 친절이 두 배로 돌아온다.",
       "우연처럼 온 기회가 필연이 된다.","마음의 여유가 행운을 끌어당긴다.","작은 감사가 큰 복이 된다.",
