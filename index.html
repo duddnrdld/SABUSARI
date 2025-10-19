@@ -74,13 +74,28 @@
       animation-timing-function:linear;
     }
 
-    @keyframes fall {
-      0% { transform: translate(var(--x), -80px) rotate(0deg); opacity: 0.1; }
-      25% { transform: translate(calc(var(--x) + 30px), 25vh) rotate(180deg); opacity: 0.5; }
-      50% { transform: translate(calc(var(--x) - 20px), 50vh) rotate(360deg); opacity: 0.8; }
-      75% { transform: translate(calc(var(--x) + 40px), 75vh) rotate(540deg); opacity: 0.5; }
-      100% { transform: translate(var(--x), 110vh) rotate(720deg); opacity: 0; }
-    }
+   @keyframes fall {
+  0% {
+    transform: translate(var(--x), var(--startY)) rotate(0deg);
+    opacity: 0.1;
+  }
+  25% {
+    transform: translate(calc(var(--x) + 30px), calc(var(--startY) + 25vh)) rotate(180deg);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translate(calc(var(--x) - 20px), calc(var(--startY) + 50vh)) rotate(360deg);
+    opacity: 0.85;
+  }
+  75% {
+    transform: translate(calc(var(--x) + 40px), calc(var(--startY) + 75vh)) rotate(540deg);
+    opacity: 0.5;
+  }
+  100% {
+    transform: translate(var(--x), calc(var(--startY) + 110vh)) rotate(720deg);
+    opacity: 0;
+  }
+}
   </style>
 </head>
 <body>
@@ -116,21 +131,31 @@
     }
     setInterval(()=>{el.textContent=fmt();},1000); el.textContent=fmt();
 
-    const rain=document.getElementById('rain');
-    const imgs=['./assets/sab1.png','./assets/sab2.png','./assets/sab3.png','./assets/sab4.png'];
-    const per=10;
-    for(let i=0;i<per*imgs.length;i++){
-      const d=document.createElement('img');
-      d.src=imgs[i%imgs.length];
-      d.className='drop';
-      const dur=(Math.random()*3+3).toFixed(1)+'s';
-      const delay=(Math.random()*3).toFixed(1)+'s';
-      const x=Math.random()*100+'vw';
-      d.style.setProperty('--dur',dur);
-      d.style.setProperty('--delay',delay);
-      d.style.setProperty('--x',x);
-      rain.appendChild(d);
-    }
-  </script>
+    const rain = document.getElementById('rain');
+  const imgs = ['./assets/sab1.png','./assets/sab2.png','./assets/sab3.png','./assets/sab4.png'];
+  const per = 10; // 각 이미지당 10개(총 40개)
+
+  for (let i = 0; i < per * imgs.length; i++) {
+    const d = document.createElement('img');
+    d.src = imgs[i % imgs.length];
+    d.className = 'drop';
+
+    // 속도/지연 랜덤
+    const dur   = (Math.random() * 3 + 3).toFixed(1) + 's'; // 3~6초
+    const delay = (Math.random() * 3).toFixed(1) + 's';     // 0~3초
+
+    // ✅ 가로/세로 시작위치 모두 랜덤: 화면 전역에서 시작
+    const x = (Math.random() * 100).toFixed(2) + 'vw';
+    // -20vh ~ +80vh 사이 어디서든 시작 → ‘대기 없이’ 곧바로 하강 중처럼 보임
+    const startY = (Math.random() * 100 - 20).toFixed(2) + 'vh';
+
+    d.style.setProperty('--dur', dur);
+    d.style.setProperty('--delay', delay);
+    d.style.setProperty('--x', x);
+    d.style.setProperty('--startY', startY);
+
+    rain.appendChild(d);
+  }
+</script>
 </body>
 </html>
