@@ -27,15 +27,15 @@
     .b2{top:40px; right:-18px; width:72px; height:72px; animation-duration:7.5s}
     @keyframes float{0%{transform:translateY(0)}50%{transform:translateY(-8px)}100%{transform:translateY(0)}}
 
-    /* ✅ 카드 배경만 투명도 적용 */
+    /* 카드: 반투명 */
     .card{
-      background: rgba(255,255,255,0.8);  /* ← 투명 흰색 */
+      background: rgba(255,255,255,0.8);
       border-radius:var(--radius);
       padding:22px;
       text-align:center;
       box-shadow:0 10px 30px rgba(255,127,180,.28);
       position:relative;
-      backdrop-filter: blur(4px); /* 살짝 블러로 뒷배경 부드럽게 */
+      backdrop-filter: blur(4px);
     }
 
     .chip{display:inline-block; padding:7px 12px; border-radius:999px;
@@ -63,39 +63,45 @@
     .btn:active{transform:translateY(1px)}
     .footer{ text-align:center; color:#a2a2a2; font-size:12px; margin-top:20px; position:relative; z-index:4;}
 
-    /* 삽살개 비 효과 (이전 그대로 유지) */
+    /* 삽살개 비 효과 */
     .rain{ position:fixed; inset:0; overflow:hidden; pointer-events:none; z-index:1; }
     .drop{
-      position:absolute; width:60px; height:60px; opacity:0.85;
+      position:absolute; width:60px; height:60px;
       filter:blur(0.5px) drop-shadow(0 3px 6px rgba(0,0,0,.15));
-      will-change:transform;
-      animation:fall var(--dur) linear infinite;
+      will-change:transform, opacity, visibility;
+
+      /* ✨ 깜박임 방지: 초기 상태부터 랜덤 좌표에 배치 + 거의 투명 */
+      transform: translate(var(--x), var(--startY)) rotate(0deg);
+      opacity: 0.001;
+      visibility: hidden;
+
+      animation: fall var(--dur) linear infinite;
       animation-delay: var(--delay);
-      animation-timing-function:linear;
+      animation-fill-mode: both; /* delay 동안에도 0% 프레임 유지 */
     }
 
-   @keyframes fall {
-  0% {
-    transform: translate(var(--x), var(--startY)) rotate(0deg);
-    opacity: 0.1;
-  }
-  25% {
-    transform: translate(calc(var(--x) + 30px), calc(var(--startY) + 25vh)) rotate(180deg);
-    opacity: 0.5;
-  }
-  50% {
-    transform: translate(calc(var(--x) - 20px), calc(var(--startY) + 50vh)) rotate(360deg);
-    opacity: 0.85;
-  }
-  75% {
-    transform: translate(calc(var(--x) + 40px), calc(var(--startY) + 75vh)) rotate(540deg);
-    opacity: 0.5;
-  }
-  100% {
-    transform: translate(var(--x), calc(var(--startY) + 110vh)) rotate(720deg);
-    opacity: 0;
-  }
-}
+    @keyframes fall {
+      0% {
+        transform: translate(var(--x), var(--startY)) rotate(0deg);
+        opacity: 0.08;
+      }
+      25% {
+        transform: translate(calc(var(--x) + 30px), calc(var(--startY) + 25vh)) rotate(180deg);
+        opacity: 0.5;
+      }
+      50% {
+        transform: translate(calc(var(--x) - 20px), calc(var(--startY) + 50vh)) rotate(360deg);
+        opacity: 0.85;
+      }
+      75% {
+        transform: translate(calc(var(--x) + 40px), calc(var(--startY) + 75vh)) rotate(540deg);
+        opacity: 0.5;
+      }
+      100% {
+        transform: translate(var(--x), calc(var(--startY) + 110vh)) rotate(720deg);
+        opacity: 0;
+      }
+    }
   </style>
 </head>
 <body>
@@ -124,6 +130,7 @@
   </div>
 
   <script>
+    /* 시간 표시 */
     const el=document.getElementById('nowText');
     function fmt(){
       const d=new Date();
@@ -131,31 +138,42 @@
     }
     setInterval(()=>{el.textContent=fmt();},1000); el.textContent=fmt();
 
+    /* 삽살개 비: 시작부터 랜덤 좌표에서 '대기 없이' 보이도록 */
     const rain = document.getElementById('rain');
-  const imgs = ['./assets/sab1.png','./assets/sab2.png','./assets/sab3.png','./assets/sab4.png'];
-  const per = 10; // 각 이미지당 10개(총 40개)
+    const imgs = ['./assets/sab1.png','./assets/sab2.png','./assets/sab3.png','./assets/sab4.png'];
+    const per = 10; // 각 이미지당 10개(총 40개)
 
-  for (let i = 0; i < per * imgs.length; i++) {
-    const d = document.createElement('img');
-    d.src = imgs[i % imgs.length];
-    d.className = 'drop';
+    for (let i = 0; i < per * imgs.length; i++) {
+      const d = document.createElement('img');
+      d.src = imgs[i % imgs.length];
+      d.className = 'drop';
 
-    // 속도/지연 랜덤
-    const dur   = (Math.random() * 3 + 3).toFixed(1) + 's'; // 3~6초
-    const delay = (Math.random() * 3).toFixed(1) + 's';     // 0~3초
+      // 속도/지연 랜덤
+      const dur   = (Math.random() * 3 + 3).toFixed(1) + 's'; // 3~6초
+      const delay = (Math.random() * 3).toFixed(1) + 's';     // 0~3초
 
-    // ✅ 가로/세로 시작위치 모두 랜덤: 화면 전역에서 시작
-    const x = (Math.random() * 100).toFixed(2) + 'vw';
-    // -20vh ~ +80vh 사이 어디서든 시작 → ‘대기 없이’ 곧바로 하강 중처럼 보임
-    const startY = (Math.random() * 100 - 20).toFixed(2) + 'vh';
+      // 화면 전역 랜덤 시작 위치
+      const x = (Math.random() * 100).toFixed(2) + 'vw';
+      const startY = (Math.random() * 100 - 20).toFixed(2) + 'vh'; // -20vh ~ 80vh
 
-    d.style.setProperty('--dur', dur);
-    d.style.setProperty('--delay', delay);
-    d.style.setProperty('--x', x);
-    d.style.setProperty('--startY', startY);
+      // CSS 변수 먼저 세팅
+      d.style.setProperty('--dur', dur);
+      d.style.setProperty('--delay', delay);
+      d.style.setProperty('--x', x);
+      d.style.setProperty('--startY', startY);
 
-    rain.appendChild(d);
-  }
-</script>
+      // 🔒 깜박임 방지: append 전 초기 transform/opacity 적용
+      d.style.transform = `translate(${x}, ${startY}) rotate(0deg)`;
+      d.style.opacity = '0.001';
+      d.style.visibility = 'hidden';
+
+      rain.appendChild(d);
+
+      // 다음 페인트 프레임에 보이게 전환 (delay 동안에도 0% 프레임 상태 유지)
+      requestAnimationFrame(() => {
+        d.style.visibility = 'visible';
+      });
+    }
+  </script>
 </body>
 </html>
